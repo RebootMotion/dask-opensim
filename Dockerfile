@@ -10,7 +10,6 @@ RUN apt-get install python3-dev python3-pip python3-tk python3-lxml python3-six 
 RUN echo 'export PATH=/opensim/opensim_install/bin:$PATH' >> ~/.bashrc 
 
 RUN tar xzvf /opensim.tar.gz
-RUN rm /opensim.tar.gz
 
 RUN cd /opensim/opensim_install/lib/python3.6/site-packages && \
     python3 ./setup.py install
