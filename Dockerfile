@@ -1,15 +1,30 @@
-FROM daskdev/dask:latest
+FROM continuumio/miniconda3:4.7.12
 
-COPY --from=rebootmotion/opensim:latest /opensim.tar.gz .
+COPY --from=rebootmotion/opensim:latest /opensim /opensim
 
-RUN apt-get update --fix-missing && \
-    apt-get upgrade -y
+RUN conda install --yes \
+    -c conda-forge \
+    python==3.6.9 \
+    python-blosc \
+    cytoolz \
+    dask==2.20.0 \
+    lz4 \
+    nomkl \
+    numpy==1.18.1 \
+    pandas==1.0.1 \
+    tini==0.18.0 \
+    && conda clean -tipsy \
+    && find /opt/conda/ -type f,l -name '*.a' -delete \
+    && find /opt/conda/ -type f,l -name '*.pyc' -delete \
+    && find /opt/conda/ -type f,l -name '*.js.map' -delete \
+    && find /opt/conda/lib/python*/site-packages/bokeh/server/static -type f,l -name '*.js' -not -name '*.min.js' -delete \
+    && rm -rf /opt/conda/pkgs
 
-RUN apt-get install python3-dev python3-pip python3-tk python3-lxml python3-six python3-numpy -y
+COPY --from=daskdev/dask:latest /usr/bin/prepare.sh /usr/bin/prepare.sh
+
+RUN mkdir /opt/app
 
 RUN echo 'export PATH=/opensim/opensim_install/bin:$PATH' >> ~/.bashrc 
-
-RUN tar xzvf /opensim.tar.gz
 
 RUN cd /opensim/opensim_install/lib/python3.6/site-packages && \
     python3 ./setup.py install
